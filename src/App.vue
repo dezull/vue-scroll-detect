@@ -1,13 +1,15 @@
 <template>
   <div id="app">
     <div class="nav">
+      <h1>Vue Scroll Detect</h1>
       <a
         v-for="(example, index) in examples"
         :key="'title' + index"
-        href="#"
+        :href="index !== active && '#'"
+        :class="index === active && 'active'"
         @click="showExample(example)"
       >
-        <h2>{{ example }}</h2>
+        {{ example }}
       </a>
     </div>
     <component :is="activeExample" />
@@ -18,15 +20,16 @@
 import Simple from './examples/Simple.vue'
 import Horizontal from './examples/Horizontal.vue'
 import Root from './examples/Root.vue'
+import Nested from './examples/Nested.vue'
 
 export default {
   name: 'App',
 
-  components: { Simple, Horizontal, Root },
+  components: { Simple, Horizontal, Root, Nested },
 
   data () {
     return {
-      examples: ['Simple', 'Horizontal', 'Root'],
+      examples: ['Simple', 'Horizontal', 'Root', 'Nested'],
       active: 0
     }
   },
@@ -48,19 +51,13 @@ html, body {
   margin: 0;
 }
 
-.visible-items {
-  position: fixed;
-  width: 100%;
-  top: 70px;
-}
-
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 161px;
+  margin-top: 8rem;
 }
 
 .nav {
@@ -71,15 +68,45 @@ html, body {
   position: fixed;
   width: 100%;
   text-align: center;
-  height: 100px;
+  z-index: 1000;
 }
 
-.nav h2 {
-  margin-bottom: 0;
+.nav h1 {
+  font-size: 2rem;
+  margin: 0.5rem 0 0.3rem;
 }
 
 .nav a {
+  font-size: 1.5rem;
+  margin: 0 0.3rem 0.5rem;
   display: inline-block;
-  margin: auto 5px;
+}
+
+.nav a.active {
+  font-weight: bold;
+  cursor: normal;
+}
+
+ul, li {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+}
+
+.popup {
+  color: white;
+  background: #3f51b5d1;
+  font-size: 120%;
+  padding: 5px 10px;
+  position: fixed;
+}
+
+.popup-container .popup {
+  position: absolute;
+}
+
+.scroll-container {
+  border: 4px solid black;
 }
 </style>

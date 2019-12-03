@@ -1,12 +1,12 @@
 <template>
   <div>
-    <div class="visible-items">
-      {{ visibleItems.join(', ') }}
-    </div>
     <ScrollContainer
-      class="container"
+      class="scroll-container"
       :initial-event="true"
     >
+      <div class="popup">
+        {{ visibleItems.join(', ') }}
+      </div>
       <ul class>
         <li
           v-for="(item, index) in items"
@@ -54,7 +54,7 @@ export default {
 </script>
 
 <style scoped>
-.container {
+.scroll-container {
   margin: 0 auto;
   display: block;
   border: 4px solid black;
@@ -63,28 +63,26 @@ export default {
   height: auto;
 }
 
-.container ul {
+.scroll-container ul {
   width: 820px;
-  padding: 0;
-  list-style: none;
 }
 
-.container li {
+.scroll-container li {
   height: 90px;
   width: 180px;
-  margin: 0px 10px;
+  margin: 20px 10px;
   display: inline-block;
 }
 
-.container li:first-child {
+.scroll-container li:first-child {
   margin-left: 20px;
 }
 
-.container li:last-child {
+.scroll-container li:last-child {
   margin-right: 20px;
 }
 
-.container .item {
+.scroll-container .item {
   border: 4px solid red;
   box-sizing: border-box;
 }

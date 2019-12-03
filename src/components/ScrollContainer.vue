@@ -27,11 +27,13 @@ export default {
     }
   },
 
-  childrenVisibility: {},
+  created () {
+    this._childrenVisibility = {}
+  },
 
   mounted () {
     if (this.root) {
-      events.forEach(event => window.addEventListener(event, this.emitChildrenVisibility, false))
+      events.forEach(e => window.addEventListener(e, this.emitChildrenVisibility, false))
     } else {
       this.$el.onscroll = this.emitChildrenVisibility
     }
@@ -41,14 +43,14 @@ export default {
     } else {
       // Store initial visibility of children
       this.children.forEach(c => {
-        this.$options.childrenVisibility[c.$options._scrollableId] = this.isVisible(c)
+        this._childrenVisibility[c._scrollableId] = this.isInContainer(c)
       })
     }
   },
 
   beforeDestroy () {
     if (this.root) {
-      events.forEach(event => window.removeEventListener(event, this.emitChildrenVisibility, false))
+      events.forEach(e => window.removeEventListener(e, this.emitChildrenVisibility, false))
     }
     this.$el.onscroll = undefined
   },
@@ -59,41 +61,41 @@ export default {
     },
 
     emitChildVisibility (child, parentEvent) {
-      const visible = this.root ? this.isInViewport(child) : this.isVisible(child)
-      const childId = child.$options._scrollableId
+      const visible = this.isVisible(child)
+      const childId = child._scrollableId
 
-      if (visible !== this.$options.childrenVisibility[childId]) {
-        this.$options.childrenVisibility[childId] = visible
+      if (visible !== this._childrenVisibility[childId]) {
+        this._childrenVisibility[childId] = visible
         child.emitVisibility(visible, parentEvent)
       }
     },
 
-    // Adapted from https://stackoverflow.com/a/24768959
-    isInViewport (child) {
-      const rect = child.$el.getBoundingClientRect()
+    isVisible (vm) {
+      return this.root ? this.isInViewport(vm) : this.isInContainer(vm)
+    },
 
+    // Adapted from https://stackoverflow.com/a/24768959
+    isInViewport (vm) {
+      const rect = vm.$el.getBoundingClientRect()
+      const containerRect = this.$el.getBoundingClientRect()
       const scrollTop = document.body.scrollTop
       const scrollLeft = document.body.scrollLeft
       const scrollBottom = scrollTop + document.documentElement.clientHeight
-      const scrollRight = scrollTop + document.documentElement.clientWidth
-      const containerTop = this.$el.clientTop
-      const containerLeft = this.$el.clientLeft
-      const containerBottom = containerTop + this.$el.clientHeight
-      const containerRight = containerLeft + this.$el.clientWidth
-      const visibleTop = containerTop < scrollTop ? scrollTop : containerTop
-      const visibleBottom = containerBottom > scrollBottom ? scrollBottom : containerBottom
-      const visibleLeft = containerLeft < scrollLeft ? scrollLeft : containerLeft
-      const visibleRight = containerRight > scrollRight ? scrollRight : containerRight
+      const scrollRight = scrollLeft + document.documentElement.clientWidth
+      const visibleTop = containerRect.top < scrollTop ? scrollTop : containerRect.top
+      const visibleBottom = containerRect.bottom > scrollBottom ? scrollBottom : containerRect.bottom
+      const visibleLeft = containerRect.left < scrollLeft ? scrollLeft : containerRect.left
+      const visibleRight = containerRect.right > scrollRight ? scrollRight : containerRect.right
 
       return (rect.bottom > visibleTop && rect.top < visibleBottom) &&
         (rect.right > visibleLeft && rect.left < visibleRight)
     },
 
-    isVisible (child) {
-      const rect = child.$el.getBoundingClientRect()
+    isInContainer (vm) {
+      const rect = vm.$el.getBoundingClientRect()
       const containerRect = this.$el.getBoundingClientRect()
-      const topOffset = child.$el.clientTop
-      const leftOffset = child.$el.clientLeft
+      const topOffset = vm.$el.clientTop
+      const leftOffset = vm.$el.clientLeft
       const containerTop = containerRect.top + topOffset
       const containerBottom = containerRect.bottom - topOffset
       const containerLeft = containerRect.left + leftOffset
