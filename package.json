@@ -2,7 +2,7 @@
   "name": "vue-scroll-detect",
   "version": "0.1.1",
   "license": "MIT",
-  "private": true,
+  "private": false,
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "rimraf dist && rollup -c",
