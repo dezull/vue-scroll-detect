@@ -1,11 +1,17 @@
 <template>
   <div>
     <slot />
+    <!-- only used for length unit conversion -->
+    <span
+      ref="calc"
+      style="display: none"
+    />
   </div>
 </template>
 
 <script>
 const events = ['DOMContentLoaded', 'load', 'scroll', 'resize']
+
 export default {
   name: 'ScrollContainer',
 
@@ -18,6 +24,14 @@ export default {
     initialEvent: {
       type: Boolean,
       default: () => false
+    },
+
+    options: {
+      type: Object,
+      default: () => ({
+        enterOffset: '0px',
+        exitOffset: '0px'
+      })
     }
   },
 
@@ -25,6 +39,11 @@ export default {
     return {
       children: []
     }
+  },
+
+  computed: {
+    enterOffsetPx () { return this.toPx(this.options.enterOffset) },
+    exitOffsetPx () { return this.toPx(this.options.exitOffset) }
   },
 
   created () {
@@ -43,7 +62,7 @@ export default {
     } else {
       // Store initial visibility of children
       this.children.forEach(c => {
-        this._childrenVisibility[c._scrollableId] = this.isInContainer(c)
+        this.updateChildData(c._scrollableId, { wasVisible: this.isVisible(c) })
       })
     }
   },
@@ -56,27 +75,52 @@ export default {
   },
 
   methods: {
+    // Data. wasVisible, lastScrollTop, lastScrollLeft
+    updateChildData (childId, data = {}) {
+      this._childrenVisibility[childId] = this._childrenVisibility[childId] || {}
+      this._childrenVisibility[childId] = { ...this._childrenVisibility[childId], ...data }
+    },
+
+    getChildData (childId, key) {
+      const data = this._childrenVisibility[childId]
+      return data ? data[key] : null
+    },
+
     emitChildrenVisibility (e) {
       this.children.forEach(c => this.emitChildVisibility(c, e))
     },
 
     emitChildVisibility (child, parentEvent) {
-      const visible = this.isVisible(child)
       const childId = child._scrollableId
+      const wasVisible = this.getChildData(childId, 'wasVisible')
+      const visible = this.isVisible(child)
 
-      if (visible !== this._childrenVisibility[childId]) {
-        this._childrenVisibility[childId] = visible
+      if (visible !== wasVisible) {
+        this.updateChildData(childId, { wasVisible: visible })
         child.emitVisibility(visible, parentEvent)
       }
     },
 
     isVisible (vm) {
-      return this.root ? this.isInViewport(vm) : this.isInContainer(vm)
+      const rect = vm.$el.getBoundingClientRect()
+      const lastScrollTop = this.getChildData(vm._scrollableId, 'lastScrollTop') || rect.top
+      const lastScrollLeft = this.getChildData(vm._scrollableId, 'lastScrollLeft') || rect.left
+      this.updateChildData(vm._scrollableId, { lastScrollTop: rect.top, lastScrollLeft: rect.left })
+
+      let direction
+      if (rect.left === lastScrollLeft && rect.top !== lastScrollTop) {
+        direction = rect.top > lastScrollTop ? 'top' : 'down'
+      } else if (rect.left !== lastScrollLeft && rect.top === lastScrollTop) {
+        direction = rect.left > lastScrollLeft ? 'left' : 'right'
+      }
+
+      const offsetRect = direction ? this.offsetRect(rect, direction) : rect
+
+      return this.root ? this.isInViewport(vm, offsetRect) : this.isInContainer(vm, offsetRect)
     },
 
     // Adapted from https://stackoverflow.com/a/24768959
-    isInViewport (vm) {
-      const rect = vm.$el.getBoundingClientRect()
+    isInViewport (vm, { top, right, bottom, left }) {
       const containerRect = this.$el.getBoundingClientRect()
       const scrollTop = document.body.scrollTop
       const scrollLeft = document.body.scrollLeft
@@ -87,12 +131,11 @@ export default {
       const visibleLeft = containerRect.left < scrollLeft ? scrollLeft : containerRect.left
       const visibleRight = containerRect.right > scrollRight ? scrollRight : containerRect.right
 
-      return (rect.bottom > visibleTop && rect.top < visibleBottom) &&
-        (rect.right > visibleLeft && rect.left < visibleRight)
+      return (bottom > visibleTop && top < visibleBottom) &&
+        (right > visibleLeft && left < visibleRight)
     },
 
-    isInContainer (vm) {
-      const rect = vm.$el.getBoundingClientRect()
+    isInContainer (vm, { top, right, bottom, left }) {
       const containerRect = this.$el.getBoundingClientRect()
       const topOffset = vm.$el.clientTop
       const leftOffset = vm.$el.clientLeft
@@ -101,8 +144,26 @@ export default {
       const containerLeft = containerRect.left + leftOffset
       const containerRight = containerRect.right - leftOffset
 
-      return (rect.bottom > containerTop && rect.top < containerBottom) &&
-        (rect.right > containerLeft && rect.left < containerRight)
+      return (bottom > containerTop && top < containerBottom) &&
+        (right > containerLeft && left < containerRight)
+    },
+
+    offsetRect (rect, direction) {
+      const topOrLeft = direction === 'top' || direction === 'left'
+      const startOffset = topOrLeft ? -this.exitOffsetPx : this.enterOffsetPx
+      const endOffset = topOrLeft ? -this.enterOffsetPx : this.exitOffsetPx
+
+      return {
+        top: rect.top - startOffset,
+        bottom: rect.bottom - endOffset,
+        left: rect.left - startOffset,
+        right: rect.right - endOffset
+      }
+    },
+
+    toPx (length) {
+      this.$refs.calc.style.marginTop = length
+      return parseInt(window.getComputedStyle(this.$refs.calc).marginTop)
     }
   }
 }

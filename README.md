@@ -59,10 +59,12 @@ To watch for element visibility, put it inside `Scrollable`, which in turns must
 
 ##### ScrollContainer
 
-| Name            | Type    | Description                                                                                                                                                            |
-| --------------- | ------- |:---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Name            | Type    | Description                                                  |
+| --------------- | ------- | :----------------------------------------------------------- |
 | `root`          | Boolean | To watch visibility of elements as they enter/exit the window viewport. By default this is `false`, so the container itself must be scrollable eg: `overflow: scroll`. |
-| `initial-event` | Boolean | Whether to receive initial visibility of `Scrollable` elements on component mount.                                                                                     |
+| `initial-event` | Boolean | Whether to receive initial visibility of `Scrollable` elements on component mount. |
+| `enter-offset`  | String  | CSS length value (eg: "1em"). If the value is positive, emit `visible` event before element enters the container/viewport by the distance. Otherwise, emit afterwards. |
+| `exit-offset`   | String  | CSS length value (eg: "1em"). If the value is positive, emit `invisible` event before element exits the container/viewport by the distance. Otherwise, emit afterwards. |
 
 ## License
 
