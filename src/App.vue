@@ -11,12 +11,25 @@
       >
         {{ example }}
       </a>
+      <button @click="toggleOptions(!showOptions)">
+        Toggle Options
+      </button>
+      <Options
+        v-show="showOptions"
+        class="options"
+        :value="options"
+        @change="setOption"
+      />
     </div>
-    <component :is="activeExample" />
+    <component
+      :is="activeExample"
+      :options="options"
+    />
   </div>
 </template>
 
 <script>
+import Options from './examples/Options.vue'
 import Simple from './examples/Simple.vue'
 import Horizontal from './examples/Horizontal.vue'
 import Root from './examples/Root.vue'
@@ -25,12 +38,17 @@ import Nested from './examples/Nested.vue'
 export default {
   name: 'App',
 
-  components: { Simple, Horizontal, Root, Nested },
+  components: { Options, Simple, Horizontal, Root, Nested },
 
   data () {
     return {
       examples: ['Simple', 'Horizontal', 'Root', 'Nested'],
-      active: 0
+      active: 0,
+      showOptions: false,
+      options: {
+        enterOffset: '0px',
+        exitOffset: '0px'
+      }
     }
   },
 
@@ -41,6 +59,14 @@ export default {
   methods: {
     showExample (name) {
       this.active = this.examples.indexOf(name)
+    },
+
+    toggleOptions (show) {
+      this.showOptions = show
+    },
+
+    setOption (key, value) {
+      this.options = Object.assign({}, this.options, { [key]: value })
     }
   }
 }
@@ -108,5 +134,10 @@ ul, li {
 
 .scroll-container {
   border: 4px solid black;
+}
+
+.option {
+  position: fixed;
+  z-index: 1001;
 }
 </style>

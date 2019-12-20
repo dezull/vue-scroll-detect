@@ -2,6 +2,7 @@
   <div>
     <ScrollContainer
       class="scroll-container"
+      :options="options"
       :initial-event="true"
     >
       <div class="popup">
@@ -32,6 +33,13 @@ import Scrollable from '../components/Scrollable.vue'
 
 export default {
   components: { ScrollContainer, Scrollable },
+
+  props: {
+    options: {
+      type: Object,
+      default: () => {}
+    }
+  },
 
   data () {
     return {

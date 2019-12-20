@@ -3,6 +3,7 @@
     <ScrollContainer
       class="scroll-container"
       :root="true"
+      :options="options"
       :initial-event="true"
     >
       <div class="popup">
@@ -36,6 +37,13 @@ for (let i = 0; i < 26; i++) letters.push(String.fromCharCode(i + 65))
 
 export default {
   components: { ScrollContainer, Scrollable },
+
+  props: {
+    options: {
+      type: Object,
+      default: () => {}
+    }
+  },
 
   data () {
     return {

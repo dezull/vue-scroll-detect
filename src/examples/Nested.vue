@@ -5,6 +5,7 @@
         <ScrollContainer
           class="scroll-container"
           :root="true"
+          :options="options"
           :initial-event="true"
         >
           <div class="popup">
@@ -28,9 +29,9 @@
         </ScrollContainer>
       </div>
       <div class="example-container popup-container">
-        <Simple />
-        <Horizontal />
-        <Simple />
+        <Simple :options="options" />
+        <Horizontal :options="options" />
+        <Simple :options="options" />
       </div>
     </div>
   </div>
@@ -47,6 +48,13 @@ for (let i = 0; i < 26; i++) letters.push(String.fromCharCode(i + 65))
 
 export default {
   components: { ScrollContainer, Scrollable, Simple, Horizontal },
+
+  props: {
+    options: {
+      type: Object,
+      default: () => {}
+    }
+  },
 
   data () {
     return {
