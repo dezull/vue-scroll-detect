@@ -3,7 +3,7 @@
     <ScrollContainer
       class="scroll-container"
       :root="true"
-      :options="options"
+      v-bind="options"
       :initial-event="true"
     >
       <div class="popup">

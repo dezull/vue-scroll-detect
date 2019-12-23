@@ -2,7 +2,7 @@
   <div>
     <ScrollContainer
       class="scroll-container"
-      :options="options"
+      v-bind="options"
       :initial-event="true"
     >
       <div class="popup">

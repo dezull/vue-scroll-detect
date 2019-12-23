@@ -26,12 +26,14 @@ export default {
       default: () => false
     },
 
-    options: {
-      type: Object,
-      default: () => ({
-        enterOffset: '0px',
-        exitOffset: '0px'
-      })
+    enterOffset: {
+      type: String,
+      default: () => '0px'
+    },
+
+    exitOffset: {
+      type: String,
+      default: () => '0px'
     }
   },
 
@@ -42,8 +44,8 @@ export default {
   },
 
   computed: {
-    enterOffsetPx () { return this.toPx(this.options.enterOffset) },
-    exitOffsetPx () { return this.toPx(this.options.exitOffset) }
+    enterOffsetPx () { return this.toPx(this.enterOffset) },
+    exitOffsetPx () { return this.toPx(this.exitOffset) }
   },
 
   created () {
