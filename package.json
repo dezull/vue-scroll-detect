@@ -16,6 +16,8 @@
   },
   "main": "src/components/index.js",
   "files": [
+    "src/components/*.js",
+    "src/components/*.vue",
     "dist/*.js",
     "dist/*.map"
   ],
